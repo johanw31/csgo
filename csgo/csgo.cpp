@@ -22,7 +22,7 @@ bool toggle2 = true;
 int MaxPlayers = 64;
 
 
-uintptr_t ModuleAddr(const char* DesiredModule) //eigene GetModuleBaseAddr function. 
+uintptr_t ModuleAddr(const char* DesiredModule) //GetModuleBaseAddr function (Speicheraddresse im RAM)
 {
 	HANDLE SysSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, procId);
 	MODULEENTRY32 mEntry32 = {};
@@ -46,7 +46,7 @@ uintptr_t ModuleAddr(const char* DesiredModule) //eigene GetModuleBaseAddr funct
 }
 
 
-void polymorphic() // Funktion um Random shit zu generieren um VAC abzulenken
+void polymorphic() // Funktion für VAC (macht nicht wirklich was)
 {
 	std::srand(std::time(0)); //random seed erzeugen
 
@@ -214,12 +214,12 @@ int main(int argc, char* argv[]) {
 				uintptr_t LocalPlayer = Read(modulebaseaddr + dwLocalPlayer);
 			} while (LocalPlayer == NULL); // warten auf neues Spiel wenn im Menü
 
-			std::cout << "Local Player : " <<LocalPlayer;
+//			std::cout << "Local Player : " <<LocalPlayer;
 			uintptr_t dwGlowManager = Read(modulebaseaddr + dwGlowObjectManager);
 			int LocalTeam = Read(LocalPlayer + m_iTeamNum);
-			std::cout << Read(LocalPlayer + m_iHealth) << std::endl;
+/*			std::cout << Read(LocalPlayer + m_iHealth) << std::endl;
 			std::cout << "procId: " << procId << std::endl;
-			std::cout << "modulbase: " << modulebaseaddr << std::endl;
+			std::cout << "modulbase: " << modulebaseaddr << std::endl;*/
 			Sleep(10);
 
 
