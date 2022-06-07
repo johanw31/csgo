@@ -19,10 +19,11 @@ HWND csgowindow;
 HANDLE hProcess;
 bool toggle = true;
 bool toggle2 = true;
+bool toggle3 = true;
 int MaxPlayers = 64;
 
 
-uintptr_t ModuleAddr(const char* DesiredModule) //GetModuleBaseAddr function (Speicheraddresse im RAM)
+uintptr_t ModuleAddr(const char* DesiredModule) //GetModuleBaseAddr function 
 {
 	HANDLE SysSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, procId);
 	MODULEENTRY32 mEntry32 = {};
@@ -46,9 +47,9 @@ uintptr_t ModuleAddr(const char* DesiredModule) //GetModuleBaseAddr function (Sp
 }
 
 
-void polymorphic() // Funktion für VAC (macht nicht wirklich was)
+void polymorphic() 
 {
-	std::srand(std::time(0)); //random seed erzeugen
+	std::srand(std::time(0)); 
 
 	int count = 0;
 	for (count; count < 10; count++)
@@ -173,7 +174,7 @@ void rgb()
 int main(int argc, char* argv[]) {
 
 	polymorphic();
-	SetConsoleTitleA(TitleGen(rand() % 100 + 30).c_str()); //Random Fensternamen
+	SetConsoleTitleA(TitleGen(rand() % 100 + 30).c_str());
 
 	std::thread menuthread(rgb);
 
@@ -184,7 +185,7 @@ int main(int argc, char* argv[]) {
 	std::cout << "F1 für an/aus" << std::endl;
 	Sleep(100);
 
-	HWND GameWnd = FindWindow(NULL, "Counter-Strike: Global Offensive");
+	HWND GameWnd = FindWindow(NULL, "Counter-Strike: Global Offensive - Direct3D 9");
 	GetWindowThreadProcessId(GameWnd, &procId);
 	uintptr_t modulebaseaddr = ModuleAddr("client.dll");
 	HANDLE hProcess = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, procId); 
@@ -202,6 +203,10 @@ int main(int argc, char* argv[]) {
 		{
 			toggle2 = !toggle2;
 		}
+		if (GetAsyncKeyState(VK_F3) & 1)
+		{
+			toggle3 = !toggle3;
+		}
 
 		if (true)
 		{
@@ -212,14 +217,11 @@ int main(int argc, char* argv[]) {
 			do
 			{
 				uintptr_t LocalPlayer = Read(modulebaseaddr + dwLocalPlayer);
-			} while (LocalPlayer == NULL); // warten auf neues Spiel wenn im Menü
+			} while (LocalPlayer == NULL); 
 
-//			std::cout << "Local Player : " <<LocalPlayer;
 			uintptr_t dwGlowManager = Read(modulebaseaddr + dwGlowObjectManager);
 			int LocalTeam = Read(LocalPlayer + m_iTeamNum);
-/*			std::cout << Read(LocalPlayer + m_iHealth) << std::endl;
-			std::cout << "procId: " << procId << std::endl;
-			std::cout << "modulbase: " << modulebaseaddr << std::endl;*/
+			int iCrosshairId = Read(LocalPlayer + m_iCrosshairId);
 			Sleep(10);
 
 
@@ -255,6 +257,15 @@ int main(int argc, char* argv[]) {
 					WriteProcessMemory(hProcess, (LPVOID)(dwGlowManager + (GlowIndex * 0x38) + 0x8), &config, sizeof(config), NULL);
 
 				}
+				
+				/*if (toggle3 == 1) {
+					if (LocalTeam != EntityTeam && IsDormant == NULL && iCrosshairId != 0) {
+						int shoot = 1;
+						WriteProcessMemory(hProcess, (LPVOID)(dwEntity + m_flNextAttack), &shoot, sizeof(config), NULL);
+						std::cout << LocalTeam << "   " << EntityTeam << std::endl;
+						mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+					}
+				}*/
 
 			}
 		}
